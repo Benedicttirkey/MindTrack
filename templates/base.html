@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MindTrack{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="site-frame">
+    <header class="site-header">
+      <div class="header-top">
+        <a href="/home/" class="logo-box"><strong>MindTrack</strong></a>
+        <div class="header-spacer"></div>
+        {% if request.session.user_name %}
+          <a href="/logout/" class="logout-box">LOGOUT</a>
+        {% else %}
+          <a href="/login/" class="logout-box">LOGIN</a>
+        {% endif %}
+      </div>
+
+      <nav class="main-nav">
+        <a href="/home/" class="nav-item">Home</a>
+        <span class="nav-divider">|</span>
+        <a href="/daily-record/" class="nav-item">Daily Record</a>
+        <span class="nav-divider">|</span>
+        <a href="/data-visualizations/" class="nav-item">Data visualization</a>
+        <span class="nav-divider">|</span>
+        <a href="/profile/" class="nav-item">Personal Center</a>
+      </nav>
+    </header>
+
+    <main class="page-content">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">Footer</footer>
+  </div>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register - MindTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% load static %}{% static 'css/style.css' %}">
+</head>
+<body class="auth-body">
+  <section class="auth-card wide">
+    <div class="auth-intro">
+      <span class="eyebrow">Create account</span>
+      <h1>Start using MindTrack</h1>
+      <p>Build a healthier routine with daily records and weekly insights.</p>
+    </div>
+
+    {% if err_msg %}<div class="alert alert-error">{{ err_msg }}</div>{% endif %}
+    <div id="hint" class="alert" style="display:none;"></div>
+
+    <form method="post" action="{% url 'register' %}" class="auth-form">
+      {% csrf_token %}
+      <div class="field-block">
+        <label>Email</label>
+        <input id="email" name="email" type="email" required placeholder="student@example.com" />
+      </div>
+      <div class="auth-grid">
+        <div class="field-block">
+          <label>Password</label>
+          <input name="password" type="password" required placeholder="Create password" />
+        </div>
+        <div class="field-block">
+          <label>Confirm password</label>
+          <input name="password2" type="password" required placeholder="Repeat password" />
+        </div>
+      </div>
+      <div class="field-block">
+        <label>Email verification code</label>
+        <div class="inline-actions">
+          <input name="email_code" type="text" required placeholder="4-digit code" />
+          <button id="btnSend" type="button" class="btn btn-secondary no-shrink">Send code</button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Create account</button>
+      <p class="auth-link">Already registered? <a href="/login/">Login</a></p>
+    </form>
+  </section>
+  <script>
+    const hint = document.getElementById('hint');
+    const btn = document.getElementById('btnSend');
+    const emailInput = document.getElementById('email');
+
+    function showMsg(text, ok=true){
+      hint.style.display = 'block';
+      hint.textContent = text;
+      hint.className = 'alert ' + (ok ? 'alert-ok' : 'alert-error');
+    }
+    function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+    async function sendCaptcha(){
+      const email = emailInput.value.trim();
+      if(!email){ showMsg('Please enter your email first.', false); return; }
+      btn.disabled = true;
+      try{
+        const resp = await fetch(`/send_email_captcha/?email=${encodeURIComponent(email)}`);
+        const data = await resp.json();
+        if(data.code === 200){
+          showMsg(data.msg || 'Verification code sent.', true);
+          let left = 20;
+          while(left > 0){ btn.textContent = `${left}s`; await sleep(1000); left--; }
+          btn.textContent = 'Send code';
+          btn.disabled = false;
+        } else {
+          showMsg(data.msg || 'Sending failed.', false);
+          btn.textContent = 'Send code';
+          btn.disabled = false;
+        }
+      } catch (e) {
+        showMsg('Network error or invalid endpoint.', false);
+        btn.textContent = 'Send code';
+        btn.disabled = false;
+      }
+    }
+    btn.addEventListener('click', sendCaptcha);
+  </script>
+</body>
+</html>

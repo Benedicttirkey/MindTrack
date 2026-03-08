@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Personal Care - MindTrack{% endblock %}
+{% block page_heading %}Personal Care{% endblock %}
+{% block content %}
+<section class="split-grid profile-layout">
+  <div class="panel-card">
+    <div class="profile-head">
+      <div class="avatar">{{ user.username|default:user.user_id|slice:':1'|upper }}</div>
+      <div>
+        <span class="eyebrow">Account</span>
+        <h3>{{ user.username|default:'Set your nickname' }}</h3>
+        <p>{{ user.email }}</p>
+      </div>
+    </div>
+
+    {% if err_msg %}<div class="alert alert-error">{{ err_msg }}</div>{% endif %}
+    {% if ok_msg %}<div class="alert alert-ok">{{ ok_msg }}</div>{% endif %}
+
+    <form method="post" class="form-grid two-col profile-form">
+      {% csrf_token %}
+      <div class="field-block">
+        <label for="username">Nickname</label>
+        <input type="text" id="username" name="username" value="{{ user.username|default:'' }}" placeholder="How should we call you?">
+      </div>
+      <div class="field-block">
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" value="{{ user.age|default:'' }}" min="1" max="120">
+      </div>
+      <div class="field-block">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender">
+          <option value="">Select</option>
+          <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Female</option>
+          <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Other</option>
+          <option value="na" {% if user.gender == 'na' %}selected{% endif %}>Prefer not to say</option>
+        </select>
+      </div>
+      <div class="field-block">
+        <label for="sleep_preference">Sleep preference</label>
+        <select id="sleep_preference" name="sleep_preference">
+          <option value="">Select</option>
+          <option value="Early Bird" {% if user.sleep_preference == 'Early Bird' %}selected{% endif %}>Early Bird</option>
+          <option value="Night Owl" {% if user.sleep_preference == 'Night Owl' %}selected{% endif %}>Night Owl</option>
+          <option value="Flexible" {% if user.sleep_preference == 'Flexible' %}selected{% endif %}>Flexible</option>
+        </select>
+      </div>
+      <div class="field-block field-span-full readonly-grid">
+        <div class="readonly-card">
+          <span>User ID</span>
+          <strong>{{ user.user_id }}</strong>
+        </div>
+        <div class="readonly-card">
+          <span>Email</span>
+          <strong>{{ user.email }}</strong>
+        </div>
+      </div>
+      <div class="form-actions field-span-full">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel-card">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Personal care tips</span>
+        <h3>Support healthy routines</h3>
+      </div>
+    </div>
+    <ul class="soft-list">
+      <li>Keep your sleep and wake times as consistent as possible.</li>
+      <li>Check visualizations weekly to notice changes in stress and anxiety.</li>
+      <li>Use short notes to connect emotions with study load or daily events.</li>
+      <li>Take breaks and seek support when patterns become consistently negative.</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

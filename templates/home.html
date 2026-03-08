@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Home - MindTrack{% endblock %}
+{% block body_class %}home-page{% endblock %}
+{% block content %}
+<section class="wireframe-hero">
+  <div class="hero-media">
+    <div class="hero-media-text">Media / Image</div>
+  </div>
+</section>
+
+<section class="home-two-column">
+  <aside class="feature-panel">
+    <h2>Feature Panel</h2>
+    <ul>
+      <li>Mood</li>
+      <li>Sleep</li>
+      <li>Exercise</li>
+      <li>Stress</li>
+      <li>Work/Study</li>
+    </ul>
+  </aside>
+
+  <section class="main-panel">
+    <!-- <div class="panel-label">Main content</div> -->
+    <h2>Welcome to MindTrack</h2>
+    <div class="panel-body">
+      <p>Use this dashboard to record your daily wellbeing, review charts and manage your personal care information.</p>
+      <div class="home-action-list">
+        <a href="/daily-record/" class="line-action">Input Form</a>
+        <a href="/data-visualizations/" class="line-action">Charts</a>
+        <a href="/profile/" class="line-action">Profile Details</a>
+      </div>
+    </div>
+  </section>
+</section>
+{% endblock %}

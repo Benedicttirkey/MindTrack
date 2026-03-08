@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Data Visualizations - MindTrack{% endblock %}
+{% block page_heading %}Data Visualizations{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block content %}
+<section class="card-grid four-up compact-gap">
+  <article class="metric-card"><span>Avg mood</span><strong>4.1</strong><small>Last 7 days</small></article>
+  <article class="metric-card"><span>Avg sleep</span><strong>7.3h</strong><small>Stable this week</small></article>
+  <article class="metric-card"><span>Exercise days</span><strong>4</strong><small>Out of 7</small></article>
+  <article class="metric-card"><span>Study time</span><strong>34h</strong><small>Total weekly</small></article>
+</section>
+
+<section class="card-grid two-up charts-grid">
+  <div class="panel-card chart-card">
+    <div class="section-head"><div><span class="eyebrow">Weekly trend</span><h3>Mood, stress and anxiety</h3></div></div>
+    <div class="chart-canvas-wrap">
+      <canvas id="moodChart"></canvas>
+    </div>
+  </div>
+  <div class="panel-card chart-card">
+    <div class="section-head"><div><span class="eyebrow">Sleep</span><h3>Sleep duration by day</h3></div></div>
+    <div class="chart-canvas-wrap">
+      <canvas id="sleepChart"></canvas>
+    </div>
+  </div>
+  <div class="panel-card chart-card">
+    <div class="section-head"><div><span class="eyebrow">Activity</span><h3>Exercise duration</h3></div></div>
+    <div class="chart-canvas-wrap">
+      <canvas id="exerciseChart"></canvas>
+    </div>
+  </div>
+  <div class="panel-card chart-card">
+    <div class="section-head"><div><span class="eyebrow">Workload</span><h3>Study hours</h3></div></div>
+    <div class="chart-canvas-wrap">
+      <canvas id="studyChart"></canvas>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
