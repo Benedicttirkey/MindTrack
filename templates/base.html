@@ -15,23 +15,23 @@
   <div class="site-frame">
     <header class="site-header">
       <div class="header-top">
-        <a href="/home/" class="logo-box"><strong>MindTrack</strong></a>
+        <a href="{% url 'home' %}" class="logo-box"><strong>MindTrack</strong></a>
         <div class="header-spacer"></div>
         {% if request.session.user_name %}
-          <a href="/logout/" class="logout-box">LOGOUT</a>
+          <a href="{% url 'logout' %}" class="logout-box">LOGOUT</a>
         {% else %}
-          <a href="/login/" class="logout-box">LOGIN</a>
+          <a href="{% url 'login' %}" class="logout-box">LOGIN</a>
         {% endif %}
       </div>
 
       <nav class="main-nav">
-        <a href="/home/" class="nav-item">Home</a>
+        <a href="{% url 'home' %}" class="nav-item">Home</a>
         <span class="nav-divider">|</span>
-        <a href="/daily-record/" class="nav-item">Daily Record</a>
+        <a href="{% url 'daily_record' %}" class="nav-item">Daily Record</a>
         <span class="nav-divider">|</span>
-        <a href="/data-visualizations/" class="nav-item">Data visualization</a>
+        <a href="{% url 'data_visualizations' %}" class="nav-item">Data visualization</a>
         <span class="nav-divider">|</span>
-        <a href="/profile/" class="nav-item">Personal Center</a>
+        <a href="{% url 'profile' %}" class="nav-item">Personal Center</a>
       </nav>
     </header>
 
@@ -39,7 +39,7 @@
       {% block content %}{% endblock %}
     </main>
 
-    <footer class="site-footer">Footer</footer>
+    <footer class="site-footer">MindTrack@2026</footer>
   </div>
 
   <script src="{% static 'js/main.js' %}"></script>

@@ -3,93 +3,30 @@
 {% block title %}Daily Record - MindTrack{% endblock %}
 {% block page_heading %}Daily Record{% endblock %}
 {% block content %}
-<form class="record-layout" method="post" action="">
-  {% csrf_token %}
-  <section class="panel-card">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">Today's wellbeing</span>
-        <h3>Mood and mental state</h3>
-      </div>
-      <span class="pill">1 = low, 5 = high</span>
+<section class="home-two-column daily-record-two-column">
+{#  <a href="/daily-record/lifestyle/?record_date={{ record_date }}" class="main-panel home-welcome-panel daily-record-panel-link">#}
+    <a href="{% url 'lifestyle_record' %}?record_date={{ record_date }}" class="main-panel home-welcome-panel daily-record-panel-link">
+    <h2>Lifestyle</h2>
+    <div class="panel-body">
+      <p>Open the lifestyle section to store sleep, exercise and work-study details for the selected date.</p>
     </div>
+  </a>
+{#  <a href="/daily-record/mood/?record_date={{ record_date }}" class="main-panel home-welcome-panel daily-record-panel-link">#}
+    <a href="{% url 'mood_record' %}?record_date={{ record_date }}" class="main-panel home-welcome-panel daily-record-panel-link">
+    <h2>Mood</h2>
+    <div class="panel-body">
+      <p>Open the mood section to store mood, stress, anxiety and your daily note for the selected date.</p>
+    </div>
+  </a>
+</section>
 
-    <div class="form-grid two-col">
-      <div class="range-field">
-        <label for="mood_rating">Mood</label>
-        <input type="range" id="mood_rating" name="mood_rating" min="1" max="5" value="3">
-        <output for="mood_rating">3</output>
-      </div>
-      <div class="range-field">
-        <label for="stress_rating">Stress</label>
-        <input type="range" id="stress_rating" name="stress_rating" min="1" max="5" value="3">
-        <output for="stress_rating">3</output>
-      </div>
-      <div class="range-field">
-        <label for="anxiety_rating">Anxiety</label>
-        <input type="range" id="anxiety_rating" name="anxiety_rating" min="1" max="5" value="3">
-        <output for="anxiety_rating">3</output>
-      </div>
-      <div class="field-block">
-        <label for="record_date">Date</label>
-        <input type="date" id="record_date" name="record_date">
-      </div>
-    </div>
-
-    <div class="field-block">
-      <label for="note_text">Daily note</label>
-      <textarea id="note_text" name="note_text" rows="5" placeholder="What happened today that affected your wellbeing?"></textarea>
-    </div>
-  </section>
-
-  <section class="panel-card">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">Lifestyle</span>
-        <h3>Sleep, exercise and work-study</h3>
-      </div>
-    </div>
-
-    <div class="form-grid three-col">
-      <div class="field-block">
-        <label for="sleep_time">Sleep time</label>
-        <input type="datetime-local" id="sleep_time" name="sleep_time">
-      </div>
-      <div class="field-block">
-        <label for="wake_time">Wake time</label>
-        <input type="datetime-local" id="wake_time" name="wake_time">
-      </div>
-      <div class="field-block">
-        <label for="sleep_duration">Sleep duration (mins)</label>
-        <input type="number" id="sleep_duration" name="sleep_duration" min="0" placeholder="420">
-      </div>
-      <div class="field-block checkbox-wrap">
-        <label class="toggle-card">
-          <input type="checkbox" id="did_exercise" name="did_exercise">
-          <span>I exercised today</span>
-        </label>
-      </div>
-      <div class="field-block">
-        <label for="exercise_type">Exercise type</label>
-        <input type="text" id="exercise_type" name="exercise_type" placeholder="Walking, gym, yoga">
-      </div>
-      <div class="field-block">
-        <label for="exercise_duration">Exercise duration (mins)</label>
-        <input type="number" id="exercise_duration" name="exercise_duration" min="0" placeholder="45">
-      </div>
-      <div class="field-block field-span-full">
-        <label for="workstudy_hours">Work / study duration (hours)</label>
-        <input type="number" id="workstudy_hours" name="workstudy_hours" min="0" step="0.25" placeholder="6.5">
-      </div>
-    </div>
-
-    <div class="form-actions">
-      <button type="reset" class="btn btn-secondary">Reset</button>
-      <button type="submit" class="btn btn-primary">Save record</button>
-    </div>
-  </section>
-</form>
+<section class="content-panel daily-record-date-panel">
+  <div class="record-date-picker">
+    <label for="record_date">Date</label>
+    <input type="date" id="record_date" name="record_date" value="{{ record_date }}">
+  </div>
+</section>
 {% endblock %}
 {% block extra_js %}
-<script src="{% static 'js/daily-record.js' %}"></script>
+<script src="{% static 'js/daily-record-hub.js' %}"></script>
 {% endblock %}

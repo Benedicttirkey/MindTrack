@@ -28,16 +28,7 @@ Notes
 - The daily record form is frontend-ready, but save logic still needs to be connected to your POST handling.
 - Django was not installed in this container, so I could not run `manage.py` locally for a full verification.
 
-Quick start (Django)
-1. Create a virtual environment and activate it.
-2. Install dependencies:
-   `pip install django`
-3. Run migrations:
-   `python manage.py migrate`
-4. Start server:
-   `python manage.py runserver`
-5. Open:
-   `http://127.0.0.1:8000/`
+venv
 
 Database settings
 - Default database is now SQLite (works out-of-the-box).

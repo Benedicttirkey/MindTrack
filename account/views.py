@@ -1,10 +1,13 @@
 # # Create your views here.
 
+from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, redirect
 from .models import User  # 引入 User 模型
 from django.http.response import JsonResponse
+from .models import DailyRecord, ExerciseRecord, MoodRecord, SleepRecord, WorkStudyRecord
 import random, datetime
 from django.core.mail import send_mail
+from django.utils.dateparse import parse_date, parse_datetime
 
 def main(request):
     return render(request, 'register.html')
@@ -43,9 +46,10 @@ def register(request):
         new_user = User.objects.create(email=email)
         new_user.set_password(password)
 
-        return redirect('/login/')
+        return redirect('login')
     else:
         return render(request, 'register.html')
+
 
 
 # 验证码 Verification code
@@ -82,6 +86,7 @@ def send_email_captcha(request):
     return JsonResponse({"code": 200, "msg": "Email verification code sent successfully "})
 
 
+
 # 登录功能 login
 def login(request):
     if request.method == 'POST':
@@ -97,7 +102,7 @@ def login(request):
         # 登录成功，存储用户信息到 session Login successful. Store user information in the session.
         request.session['user_name'] = user.email
         request.session['user_id'] = user.user_id
-        return redirect('/home/')
+        return redirect('home')
 
     else:
         # return render(request, 'index.html')
@@ -107,7 +112,7 @@ def login(request):
 
 def logout(request):
     request.session.flush()
-    return redirect('/login/')
+    return redirect('login')
 
 
 
@@ -131,13 +136,13 @@ def profile(request):
     # 必须先登录 You must log in first.
     user_id = request.session.get('user_id')
     if not user_id:
-        return redirect('/login/')
+        return redirect('login')
 
     user = User.objects.filter(user_id=user_id).first()
     if not user:
         # session 里有 user_id 但数据库没这个人（极少见） In the session, there is a user_id, but the database does not have this person (this is extremely rare).
         request.session.flush()
-        return redirect('/login/')
+        return redirect('login')
 
     if request.method == 'POST':
         # 取用户填写的资料（注册后再补） Retrieve the information filled out by the user (fill it in again after registration)
@@ -164,15 +169,172 @@ def profile(request):
 
 
 
-# daily record page
-def daily_record(request):
+def _get_logged_in_user(request):
     if "user_name" not in request.session:
-        return redirect('/login/')
-    return render(request, "daily_record.html")
+        return None
+
+    user_id = request.session.get('user_id')
+    user = User.objects.filter(user_id=user_id).first()
+    if not user:
+        request.session.flush()
+    return user
+
+
+def _selected_record_date(request):
+    raw_date = request.POST.get('record_date') or request.GET.get('record_date') or ''
+    return parse_date(raw_date) if raw_date else datetime.date.today()
+
+
+def _get_existing_records(user, record_date):
+    daily_record_obj = DailyRecord.objects.filter(user=user, record_date=record_date).first()
+    return {
+        'daily_record': daily_record_obj,
+        'mood': MoodRecord.objects.filter(daily_record=daily_record_obj).first() if daily_record_obj else None,
+        'sleep': SleepRecord.objects.filter(daily_record=daily_record_obj).first() if daily_record_obj else None,
+        'exercise': ExerciseRecord.objects.filter(daily_record=daily_record_obj).first() if daily_record_obj else None,
+        'workstudy': WorkStudyRecord.objects.filter(daily_record=daily_record_obj).first() if daily_record_obj else None,
+    }
+
+
+# daily record hub page
+def daily_record(request):
+    user = _get_logged_in_user(request)
+    if not user:
+        return redirect('login')
+
+    record_date = _selected_record_date(request)
+    return render(
+        request,
+        "daily_record.html",
+        {'record_date': record_date.isoformat()}
+    )
+
+
+def mood_record(request):
+    user = _get_logged_in_user(request)
+    if not user:
+        return redirect('login')
+
+    record_date = _selected_record_date(request)
+    existing = _get_existing_records(user, record_date)
+    mood = existing['mood']
+    context = {
+        'record_date': record_date.isoformat(),
+        'mood_rating': mood.mood_rating if mood else 3,
+        'stress_rating': mood.stress_rating if mood else 3,
+        'anxiety_rating': mood.anxiety_rating if mood else 3,
+        'note_text': mood.note_text if mood else '',
+    }
+
+    if request.method == 'POST':
+        daily_record_obj, _ = DailyRecord.objects.get_or_create(user=user, record_date=record_date)
+        MoodRecord.objects.update_or_create(
+            daily_record=daily_record_obj,
+            defaults={
+                'mood_rating': int(request.POST.get('mood_rating', 3)),
+                'stress_rating': int(request.POST.get('stress_rating', 3)),
+                'anxiety_rating': int(request.POST.get('anxiety_rating', 3)),
+                'note_text': (request.POST.get('note_text') or '').strip() or None,
+            }
+        )
+        context.update({
+            'mood_rating': int(request.POST.get('mood_rating', 3)),
+            'stress_rating': int(request.POST.get('stress_rating', 3)),
+            'anxiety_rating': int(request.POST.get('anxiety_rating', 3)),
+            'note_text': (request.POST.get('note_text') or '').strip(),
+            'ok_msg': 'Mood record saved successfully.',
+        })
+
+    return render(request, "mood_record.html", context)
+
+
+def lifestyle_record(request):
+    user = _get_logged_in_user(request)
+    if not user:
+        return redirect('login')
+
+    record_date = _selected_record_date(request)
+    existing = _get_existing_records(user, record_date)
+    sleep = existing['sleep']
+    exercise = existing['exercise']
+    workstudy = existing['workstudy']
+    context = {
+        'record_date': record_date.isoformat(),
+        'sleep_time': sleep.sleep_time.strftime('%Y-%m-%dT%H:%M') if sleep and sleep.sleep_time else '',
+        'wake_time': sleep.wake_time.strftime('%Y-%m-%dT%H:%M') if sleep and sleep.wake_time else '',
+        'sleep_duration': sleep.sleep_duration if sleep and sleep.sleep_duration is not None else '',
+        'did_exercise': exercise.did_exercise if exercise else False,
+        'exercise_type': exercise.exercise_type if exercise and exercise.exercise_type else '',
+        'exercise_duration': exercise.exercise_duration if exercise and exercise.exercise_duration is not None else '',
+        'workstudy_hours': workstudy.workstudy_hours if workstudy else '',
+    }
+
+    if request.method == 'POST':
+        daily_record_obj, _ = DailyRecord.objects.get_or_create(user=user, record_date=record_date)
+
+        sleep_time_raw = request.POST.get('sleep_time') or ''
+        wake_time_raw = request.POST.get('wake_time') or ''
+        sleep_duration_raw = request.POST.get('sleep_duration') or ''
+        sleep_time = parse_datetime(sleep_time_raw) if sleep_time_raw else None
+        wake_time = parse_datetime(wake_time_raw) if wake_time_raw else None
+        sleep_duration = int(sleep_duration_raw) if sleep_duration_raw else None
+
+        if sleep_time and wake_time and sleep_duration is None:
+            sleep_duration = max(int((wake_time - sleep_time).total_seconds() // 60), 0)
+
+        if sleep_time:
+            SleepRecord.objects.update_or_create(
+                daily_record=daily_record_obj,
+                defaults={
+                    'status': 'complete' if wake_time else 'open',
+                    'sleep_time': sleep_time,
+                    'wake_time': wake_time,
+                    'sleep_duration': sleep_duration,
+                }
+            )
+
+        did_exercise = request.POST.get('did_exercise') == 'on'
+        exercise_type = (request.POST.get('exercise_type') or '').strip()
+        exercise_duration_raw = request.POST.get('exercise_duration') or ''
+        exercise_duration = int(exercise_duration_raw) if exercise_duration_raw else None
+
+        ExerciseRecord.objects.update_or_create(
+            daily_record=daily_record_obj,
+            defaults={
+                'did_exercise': did_exercise,
+                'exercise_type': exercise_type or None,
+                'exercise_duration': exercise_duration,
+            }
+        )
+
+        workstudy_hours_raw = request.POST.get('workstudy_hours') or ''
+        try:
+            workstudy_hours = Decimal(workstudy_hours_raw) if workstudy_hours_raw else Decimal('0.00')
+        except InvalidOperation:
+            context['err_msg'] = 'Work / study duration must be a valid number.'
+            return render(request, "lifestyle_record.html", context)
+
+        WorkStudyRecord.objects.update_or_create(
+            daily_record=daily_record_obj,
+            defaults={'workstudy_hours': workstudy_hours}
+        )
+
+        context.update({
+            'sleep_time': sleep_time_raw,
+            'wake_time': wake_time_raw,
+            'sleep_duration': sleep_duration if sleep_duration is not None else '',
+            'did_exercise': did_exercise,
+            'exercise_type': exercise_type,
+            'exercise_duration': exercise_duration if exercise_duration is not None else '',
+            'workstudy_hours': workstudy_hours,
+            'ok_msg': 'Lifestyle record saved successfully.',
+        })
+
+    return render(request, "lifestyle_record.html", context)
 
 
 # data visualizations page
 def data_visualizations(request):
     if "user_name" not in request.session:
-        return redirect('/login/')
+        return redirect('login')
     return render(request, "data_visualizations.html")

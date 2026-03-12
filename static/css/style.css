@@ -82,10 +82,15 @@ button, input, textarea, select { font: inherit; }
 
 .hero-media {
   min-height: 280px;
+  max-height: 62vh;
+  width: calc(100% - 20px);
+  margin: 0 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f7f7f7;
+  overflow: hidden;
+  padding: 12px;
 }
 
 .hero-media-text {
@@ -94,13 +99,49 @@ button, input, textarea, select { font: inherit; }
   letter-spacing: 0.02em;
 }
 
+.hero-media-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(62vh - 24px);
+  height: auto;
+  object-fit: contain;
+}
+
 .home-two-column {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 56px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 18px;
   margin-top: 14px;
   padding: 12px;
   background: #efefef;
+  align-items: stretch;
+}
+
+.home-welcome-panel {
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  align-self: stretch;
+}
+
+.home-side-visual {
+  border: 1px solid var(--line);
+  background: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  min-height: 360px;
+}
+
+.home-side-image {
+  display: block;
+  width: 100%;
+  max-width: 90px;
+  max-height: 90px;
+  height: auto;
+  object-fit: contain;
 }
 
 .feature-panel,
@@ -143,8 +184,36 @@ button, input, textarea, select { font: inherit; }
   padding-top: 10px;
 }
 
+.home-student-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 4px 0 0;
+  overflow: hidden;
+}
+
+.home-student-image {
+  display: block;
+  width: 500px;
+  max-width: 500px;
+  max-height: 274px;
+  height: auto;
+  object-fit: contain;
+}
+
+.home-image-panel {
+  overflow: hidden;
+}
+
+.home-image-panel .home-student-image {
+  width: 500px !important;
+  max-width: 500px !important;
+  max-height: 274px !important;
+}
+
 .panel-body p {
-  max-width: 520px;
+  max-width: 920px;
   margin: 0 auto 24px;
   font-size: 1.1rem;
   line-height: 1.7;
@@ -181,6 +250,47 @@ button, input, textarea, select { font: inherit; }
   border: 1px solid var(--line);
   background: #f7f7f7;
   padding: 28px;
+}
+
+.daily-record-two-column {
+  margin-top: 0;
+}
+
+.daily-record-panel-link {
+  display: block;
+  transition: background-color 0.2s ease;
+}
+
+.daily-record-panel-link:hover {
+  background: #f0f8ea;
+}
+
+.daily-record-panel-link .panel-body p {
+  max-width: 520px;
+}
+
+.daily-record-date-panel {
+  max-width: 420px;
+  margin: 14px auto 0;
+}
+
+.record-date-picker,
+.record-date-field {
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.record-date-picker label,
+.record-date-field label {
+  display: block;
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.record-form-panel {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .page-title {
@@ -273,7 +383,39 @@ input, textarea, select {
     min-height: auto;
   }
 
+  .home-side-visual {
+    min-height: auto;
+  }
+
   .chart-canvas-wrap {
     height: 240px;
+  }
+
+  .hero-media {
+    max-height: 45vh;
+    min-height: 180px;
+    width: calc(100% - 20px);
+    margin: 0 10px;
+    padding: 8px;
+  }
+
+  .hero-media-image {
+    max-height: calc(45vh - 16px);
+  }
+
+  .home-student-panel {
+    min-height: 160px;
+  }
+
+  .home-student-image {
+    width: 335px;
+    max-width: 335px;
+    max-height: 183px;
+  }
+
+  .home-image-panel .home-student-image {
+    width: 335px !important;
+    max-width: 335px !important;
+    max-height: 183px !important;
   }
 }
