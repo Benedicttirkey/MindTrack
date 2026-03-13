@@ -5,9 +5,13 @@ from django.shortcuts import render, redirect
 from .models import User  # 引入 User 模型
 from django.http.response import JsonResponse
 from .models import DailyRecord, ExerciseRecord, MoodRecord, SleepRecord, WorkStudyRecord
-import random, datetime
 from django.core.mail import send_mail
 from django.utils.dateparse import parse_date, parse_datetime
+import random
+import datetime
+from datetime import timedelta
+from django.db.models import Avg, Sum
+from django.utils import timezone
 
 def main(request):
     return render(request, 'register.html')
@@ -280,7 +284,8 @@ def lifestyle_record(request):
         sleep_duration = int(sleep_duration_raw) if sleep_duration_raw else None
 
         if sleep_time and wake_time and sleep_duration is None:
-            sleep_duration = max(int((wake_time - sleep_time).total_seconds() // 60), 0)
+            # sleep_duration = max(int((wake_time - sleep_time).total_seconds() // 60), 0)
+            sleep_duration = round(max((wake_time - sleep_time).total_seconds() / 3600, 0), 2)
 
         if sleep_time:
             SleepRecord.objects.update_or_create(
@@ -335,6 +340,93 @@ def lifestyle_record(request):
 
 # data visualizations page
 def data_visualizations(request):
-    if "user_name" not in request.session:
+    user_id = request.session.get('user_id')
+    if not user_id:
         return redirect('login')
-    return render(request, "data_visualizations.html")
+
+    user = User.objects.filter(user_id=user_id).first()
+    if not user:
+        request.session.flush()
+        return redirect('login')
+
+    end_date = timezone.localdate()
+    start_date = end_date - timedelta(days=6)
+    date_list = [start_date + timedelta(days=i) for i in range(7)]
+    labels = [d.strftime('%a') for d in date_list]
+
+    mood_rows = MoodRecord.objects.filter(
+        daily_record__user=user,
+        daily_record__record_date__range=[start_date, end_date],
+    ).select_related('daily_record')
+    mood_map = {row.daily_record.record_date: row for row in mood_rows}
+
+    sleep_rows = SleepRecord.objects.filter(
+        daily_record__user=user,
+        daily_record__record_date__range=[start_date, end_date],
+        status='complete',
+    ).select_related('daily_record')
+    sleep_map = {row.daily_record.record_date: row for row in sleep_rows}
+
+    exercise_rows = ExerciseRecord.objects.filter(
+        daily_record__user=user,
+        daily_record__record_date__range=[start_date, end_date],
+    ).select_related('daily_record')
+    exercise_map = {row.daily_record.record_date: row for row in exercise_rows}
+
+    study_rows = WorkStudyRecord.objects.filter(
+        daily_record__user=user,
+        daily_record__record_date__range=[start_date, end_date],
+    ).select_related('daily_record')
+    study_map = {row.daily_record.record_date: row for row in study_rows}
+
+    mood_data = []
+    stress_data = []
+    anxiety_data = []
+    sleep_data = []
+    exercise_data = []
+    study_data = []
+
+    for current_date in date_list:
+        mood_row = mood_map.get(current_date)
+        sleep_row = sleep_map.get(current_date)
+        exercise_row = exercise_map.get(current_date)
+        study_row = study_map.get(current_date)
+
+        mood_data.append(mood_row.mood_rating if mood_row else None)
+        stress_data.append(mood_row.stress_rating if mood_row else None)
+        anxiety_data.append(mood_row.anxiety_rating if mood_row else None)
+
+        if sleep_row and sleep_row.sleep_duration is not None:
+            sleep_data.append(round(float(sleep_row.sleep_duration), 1))
+        else:
+            sleep_data.append(None)
+
+        if exercise_row:
+            if exercise_row.did_exercise:
+                exercise_data.append(exercise_row.exercise_duration or 0)
+            else:
+                exercise_data.append(0)
+        else:
+            exercise_data.append(None)
+
+        study_data.append(float(study_row.workstudy_hours) if study_row else None)
+
+    avg_mood = mood_rows.aggregate(v=Avg('mood_rating'))['v']
+    avg_sleep_hours = sleep_rows.filter(sleep_duration__isnull=False).aggregate(v=Avg('sleep_duration'))['v']
+    total_study = study_rows.aggregate(v=Sum('workstudy_hours'))['v']
+    exercise_days = exercise_rows.filter(did_exercise=True).count()
+
+    context = {
+        'week_labels': labels,
+        'mood_data': mood_data,
+        'stress_data': stress_data,
+        'anxiety_data': anxiety_data,
+        'sleep_data': sleep_data,
+        'exercise_data': exercise_data,
+        'study_data': study_data,
+        'avg_mood': round(float(avg_mood), 1) if avg_mood is not None else None,
+        'avg_sleep': round(float(avg_sleep_hours), 1) if avg_sleep_hours is not None else None,
+        'exercise_days': exercise_days,
+        'total_study': round(float(total_study), 1) if total_study is not None else 0,
+    }
+    return render(request, 'data_visualizations.html', context)

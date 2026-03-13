@@ -1,34 +1,102 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // alert("new dashboard.js loaded");
 
-  new Chart(document.getElementById('moodChart'), {
+  const readJSON = (id, fallback = []) => {
+    const el = document.getElementById(id);
+    if (!el || !el.textContent.trim()) return fallback;
+    try {
+      return JSON.parse(el.textContent);
+    } catch (error) {
+      console.error(`Failed to parse JSON from #${id}:`, error);
+      return fallback;
+    }
+  };
+
+  const labels = readJSON('week-labels', ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+  const moodData = readJSON('mood-data', []);
+  const stressData = readJSON('stress-data', []);
+  const anxietyData = readJSON('anxiety-data', []);
+  const sleepData = readJSON('sleep-data', []);
+  const exerciseData = readJSON('exercise-data', []);
+  const studyData = readJSON('study-data', []);
+
+  const createChart = (canvasId, config) => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    new Chart(canvas, config);
+  };
+
+  createChart('moodChart', {
     type: 'line',
     data: {
       labels,
       datasets: [
-        { label: 'Mood', data: [3, 4, 4, 5, 4, 3, 5], tension: 0.35 },
-        { label: 'Stress', data: [2, 3, 3, 4, 4, 3, 4], tension: 0.35 },
-        { label: 'Anxiety', data: [2, 2, 3, 3, 4, 3, 4], tension: 0.35 }
+        { label: 'Mood', data: moodData, tension: 0.35, spanGaps: true },
+        { label: 'Stress', data: stressData, tension: 0.35, spanGaps: true },
+        { label: 'Anxiety', data: anxietyData, tension: 0.35, spanGaps: true }
       ]
     },
-    options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 5, ticks: { stepSize: 1 }}}}
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { min: 0, max: 5, ticks: { stepSize: 1 } }
+      }
+    }
   });
 
-  new Chart(document.getElementById('sleepChart'), {
+  createChart('sleepChart', {
     type: 'bar',
-    data: { labels, datasets: [{ label: 'Hours slept', data: [7.2, 7.5, 6.8, 8.1, 7.4, 7.0, 7.6] }] },
-    options: { responsive: true, maintainAspectRatio: false }
+    data: {
+      labels,
+      datasets: [{ label: 'Hours slept', data: sleepData }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, suggestedMax: 10 }
+      }
+    }
   });
 
-  new Chart(document.getElementById('exerciseChart'), {
+  createChart('exerciseChart', {
     type: 'bar',
-    data: { labels, datasets: [{ label: 'Exercise mins', data: [20, 45, 0, 30, 60, 0, 35] }] },
-    options: { responsive: true, maintainAspectRatio: false }
+    data: {
+      labels,
+      datasets: [{ label: 'Exercise mins', data: exerciseData }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
   });
 
-  new Chart(document.getElementById('studyChart'), {
+  createChart('studyChart', {
     type: 'line',
-    data: { labels, datasets: [{ label: 'Study hours', data: [4, 5, 6.5, 5.5, 4.5, 3, 5] , tension: 0.35}] },
-    options: { responsive: true, maintainAspectRatio: false }
+    data: {
+      labels,
+      datasets: [{ label: 'Study hours', data: studyData, tension: 0.35, spanGaps: true }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
   });
 });
+
+
+
+
+
+
+
+
+
+
