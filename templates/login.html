@@ -1,3 +1,47 @@
+{#<!doctype html>#}
+{#{% load static %}#}
+{#<html lang="en">#}
+{#<head>#}
+{#  <meta charset="utf-8" />#}
+{#  <meta name="viewport" content="width=device-width, initial-scale=1" />#}
+{#  <title>Login - MindTrack</title>#}
+{#  <link rel="preconnect" href="https://fonts.googleapis.com">#}
+{#  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>#}
+{#  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">#}
+{#  <link rel="stylesheet" href="{% static 'css/style.css' %}">#}
+{#</head>#}
+{#<body class="auth-body">#}
+{#  <section class="auth-card">#}
+{#    <div class="auth-intro">#}
+{#      <span class="eyebrow">Welcome back</span>#}
+{#      <h1>Sign in to MindTrack</h1>#}
+{#      <p>Continue tracking your mood, sleep and routine with one clean dashboard.</p>#}
+{#    </div>#}
+{##}
+{#    {% if err_msg %}<div class="alert alert-error">{{ err_msg }}</div>{% endif %}#}
+{##}
+{#    <form method="post" action="{% url 'login' %}" class="auth-form">#}
+{#      {% csrf_token %}#}
+{#      <div class="field-block">#}
+{#        <label>Email</label>#}
+{#        <input type="email" name="email" required value="{{ request.POST.email|default:'' }}" placeholder="student@example.com">#}
+{#      </div>#}
+{#      <div class="field-block">#}
+{#        <label>Password</label>#}
+{#        <input type="password" name="password" required placeholder="Enter your password">#}
+{#      </div>#}
+{#      <button type="submit" class="btn btn-primary btn-full">Login</button>#}
+{#      <p class="auth-link">No account yet? <a href="{% url 'register' %}">Create one</a></p>#}
+{#    </form>#}
+{#  </section>#}
+{#</body>#}
+{#</html>#}
+
+
+
+
+
+
 <!doctype html>
 {% load static %}
 <html lang="en">
@@ -9,30 +53,98 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .skip-link:focus {
+      left: 16px;
+      top: 16px;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      z-index: 1000;
+      background: #ffffff;
+      color: #000000;
+      border: 2px solid #000000;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+    }
+
+    a:focus,
+    button:focus,
+    input:focus {
+      outline: 3px solid #000000;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 <body class="auth-body">
-  <section class="auth-card">
-    <div class="auth-intro">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <main id="main-content" class="auth-card" tabindex="-1">
+    <section class="auth-intro" aria-labelledby="login-title">
       <span class="eyebrow">Welcome back</span>
-      <h1>Sign in to MindTrack</h1>
-      <p>Continue tracking your mood, sleep and routine with one clean dashboard.</p>
-    </div>
+      <h1 id="login-title">Sign in to MindTrack</h1>
+      <p id="login-help">Continue tracking your mood, sleep and routine with one clean dashboard.</p>
+    </section>
 
-    {% if err_msg %}<div class="alert alert-error">{{ err_msg }}</div>{% endif %}
+    {% if err_msg %}
+      <div class="alert alert-error" id="login-error" role="alert" aria-live="polite">
+        {{ err_msg }}
+      </div>
+    {% endif %}
 
-    <form method="post" action="{% url 'login' %}" class="auth-form">
+    <form
+      method="post"
+      action="{% url 'login' %}"
+      class="auth-form"
+      aria-describedby="login-help{% if err_msg %} login-error{% endif %}"
+    >
       {% csrf_token %}
+
       <div class="field-block">
-        <label>Email</label>
-        <input type="email" name="email" required value="{{ request.POST.email|default:'' }}" placeholder="student@example.com">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          required
+          autocomplete="email"
+          value="{{ request.POST.email|default:'' }}"
+          placeholder="student@example.com"
+        >
       </div>
+
       <div class="field-block">
-        <label>Password</label>
-        <input type="password" name="password" required placeholder="Enter your password">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          required
+          autocomplete="current-password"
+          placeholder="Enter your password"
+        >
       </div>
+
       <button type="submit" class="btn btn-primary btn-full">Login</button>
       <p class="auth-link">No account yet? <a href="{% url 'register' %}">Create one</a></p>
     </form>
-  </section>
+  </main>
 </body>
 </html>
+
+
+
+
+
+
+
+
