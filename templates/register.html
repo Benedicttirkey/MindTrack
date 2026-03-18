@@ -19,7 +19,7 @@
     </div>
 
     {% if err_msg %}<div class="alert alert-error">{{ err_msg }}</div>{% endif %}
-    <div id="hint" class="alert" style="display:none;"></div>
+    <!-- <div id="hint" class="alert" style="display:none;"></div> -->
 
     <form method="post" action="{% url 'register' %}" class="auth-form">
       {% csrf_token %}
@@ -37,6 +37,8 @@
           <input name="password2" type="password" required placeholder="Repeat password" />
         </div>
       </div>
+
+      <!-- 
       <div class="field-block">
         <label>Email verification code</label>
         <div class="inline-actions">
@@ -44,10 +46,12 @@
           <button id="btnSend" type="button" class="btn btn-secondary no-shrink">Send code</button>
         </div>
       </div>
+      -->
       <button type="submit" class="btn btn-primary btn-full">Create account</button>
       <p class="auth-link">Already registered? <a href="{% url 'login' %}">Login</a></p>
     </form>
   </section>
+  <!-- 
   <script>
     const hint = document.getElementById('hint');
     const btn = document.getElementById('btnSend');
@@ -85,5 +89,6 @@
     }
     btn.addEventListener('click', sendCaptcha);
   </script>
+  -->
 </body>
 </html>
