@@ -6,7 +6,7 @@ urlpatterns = [
 
     path('', views.main, name='main'),
     path('register/', views.register, name='register'),
-    path('send_email_captcha/', views.send_email_captcha,name='send_email_captcha'),
+    #path('send_email_captcha/', views.send_email_captcha,name='send_email_captcha'),
     path("login/", views.login, name="login"),
     path("logout/", views.logout, name="logout"),
     path('home/', views.home, name='home'),
